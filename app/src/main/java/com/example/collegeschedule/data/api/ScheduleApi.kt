@@ -4,6 +4,7 @@ import com.example.collegeschedule.data.dto.ScheduleByDateDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+
 interface ScheduleApi {
     @GET("api/schedule/group/{groupName}")
     suspend fun getSchedule(
@@ -11,4 +12,8 @@ interface ScheduleApi {
         @Query("start") start: String,
         @Query("end") end: String
     ): List<ScheduleByDateDto>
+
+    // НОВЫЙ МЕТОД: Получаем список строк (названий групп)
+    @GET("api/schedule/groups")
+    suspend fun getGroups(): List<String>
 }

@@ -4,39 +4,36 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import com.example.collegeschedule.data.api.ScheduleApi
-import com.example.collegeschedule.data.repository.ScheduleRepository
 import com.example.collegeschedule.ui.theme.CollegeScheduleTheme
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import utils.ScheduleScreen // Если ScheduleScreen в папке utils
 
-// ВОТ ЭТА СТРОЧКА ДОЛЖНА БЫТЬ ТАКОЙ (или нажми Alt+Enter на ошибке):
-import com.example.collegeschedule.ui.schedule.ScheduleScreen
+// 1. Описываем пункты меню
+enum class AppDestinations(val label: String, val icon: ImageVector) {
+    HOME("Главная", Icons.Default.Home),
+    FAVORITES("Избранное", Icons.Default.Favorite),
+    PROFILE("Профиль", Icons.Default.AccountBox)
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            // Ошибка 'Unresolved reference CollegeScheduleTheme' уйдет после этого импорта
             CollegeScheduleTheme {
                 CollegeScheduleApp()
             }
@@ -44,20 +41,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@PreviewScreenSizes
 @Composable
 fun CollegeScheduleApp() {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
-
-    val retrofit = remember {
-        Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:5152/") // localhost для Android Emulator
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
-    val api = remember { retrofit.create(ScheduleApi::class.java) }
-    val repository = remember { ScheduleRepository(api) }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -76,28 +62,23 @@ fun CollegeScheduleApp() {
             }
         }
     ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        // Ошибки 'Unresolved reference Box' и 'align' уйдут благодаря импортам выше
+        Surface(modifier = Modifier.fillMaxSize()) {
             when (currentDestination) {
                 AppDestinations.HOME -> {
-                    // Здесь можно передать repository в ScheduleScreen, если нужно
-                    ScheduleScreen(modifier = Modifier.padding(innerPadding))
+                    ScheduleScreen()
                 }
                 AppDestinations.FAVORITES -> {
-                    Text("Избранные группы", modifier = Modifier.padding(innerPadding))
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Тут будет список избранных групп")
+                    }
                 }
                 AppDestinations.PROFILE -> {
-                    Text("Профиль студента", modifier = Modifier.padding(innerPadding))
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Экран профиля")
+                    }
                 }
             }
         }
     }
-}
-
-enum class AppDestinations(
-    val label: String,
-    val icon: ImageVector,
-) {
-    HOME("Home", Icons.Default.Home),
-    FAVORITES("Favorites", Icons.Default.Favorite),
-    PROFILE("Profile", Icons.Default.AccountBox)
 }
